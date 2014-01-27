@@ -249,6 +249,28 @@ namespace MimeKit.Cryptography {
 			}
 		}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+        /// </summary>
+        /// <param name="pubring">The public key ring bundle.</param>
+        /// <param name="secring">The secret key ring bundle.</param>
+        /// <param name="pubRingPath">The public key ring path. For completeness.</param>
+        /// <param name="secRingPath">The secret key ring path. For completeness.</param>
+        protected OpenPgpContext(PgpPublicKeyRingBundle pubring, PgpSecretKeyRingBundle secring, string pubRingPath = "", string secRingPath = "")
+        {
+            if (pubring == null)
+                throw new ArgumentNullException("pubring");
+
+            if (secring == null)
+                throw new ArgumentNullException("secring");
+
+            PublicKeyRingBundle = pubring;
+            SecretKeyRingBundle = secring;
+
+            PublicKeyRingPath = pubRingPath;
+            SecretKeyRingPath = secRingPath;
+        }
+
 		/// <summary>
 		/// Gets the public key associated with the <see cref="MimeKit.MailboxAddress"/>.
 		/// </summary>
