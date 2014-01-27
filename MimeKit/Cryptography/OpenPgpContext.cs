@@ -49,7 +49,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The public key ring path.</value>
 		protected string PublicKeyRingPath {
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -57,7 +57,7 @@ namespace MimeKit.Cryptography {
 		/// </summary>
 		/// <value>The secret key ring path.</value>
 		protected string SecretKeyRingPath {
-			get; private set;
+			get; set;
 		}
 
 		/// <summary>
@@ -269,6 +269,11 @@ namespace MimeKit.Cryptography {
 
             PublicKeyRingPath = pubRingPath;
             SecretKeyRingPath = secRingPath;
+        }
+
+        protected OpenPgpContext()
+        {
+
         }
 
 		/// <summary>
