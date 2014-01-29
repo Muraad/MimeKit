@@ -271,11 +271,6 @@ namespace MimeKit.Cryptography {
             SecretKeyRingPath = secRingPath;
         }
 
-        protected OpenPgpContext()
-        {
-
-        }
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
 		/// </summary>
