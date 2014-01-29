@@ -35,7 +35,9 @@
         <summary>
             Initializes a new instance of the <see cref="T:MimeKit.Encodings.HexDecoder" /> class.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new hex decoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Clone">
@@ -54,7 +56,9 @@
             Clone the <see cref="T:MimeKit.Encodings.HexDecoder" /> with its current state.
             </summary>
         <returns>A new <see cref="T:MimeKit.Encodings.HexDecoder" /> with identical state.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Creates a new <see cref="T:MimeKit.Encodings.HexDecoder" /> with exactly the same state as the current decoder.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Decode">
@@ -165,7 +169,9 @@
             Estimates the length of the output.
             </summary>
         <returns>The estimated output length.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Estimates the number of bytes needed to decode the specified number of input bytes.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="Reset">
@@ -183,7 +189,9 @@
         <summary>
             Resets the decoder.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Resets the state of the decoder.
+            </remarks>
       </Docs>
     </Member>
   </Members>

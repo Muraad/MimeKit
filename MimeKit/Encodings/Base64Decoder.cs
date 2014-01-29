@@ -63,6 +63,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.Base64Decoder"/> class.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new base64 decoder.
+		/// </remarks>
 		public Base64Decoder ()
 		{
 			Reset ();
@@ -71,6 +74,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="Base64Decoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="Base64Decoder"/> with exactly the same state as the current decoder.
+		/// </remarks>
 		/// <returns>A new <see cref="Base64Decoder"/> with identical state.</returns>
 		public IMimeDecoder Clone ()
 		{
@@ -94,6 +100,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to decode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
@@ -215,6 +224,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the decoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the decoder.
+		/// </remarks>
 		public void Reset ()
 		{
 			saved = 0;

@@ -39,6 +39,9 @@ namespace MimeKit.Encodings {
 		/// Initializes a new instance of the <see cref="MimeKit.Encodings.PassThroughEncoder"/> class.
 		/// </summary>
 		/// <param name='encoding'>The encoding to return in the <see cref="Encoding"/> property.</param>
+		/// <remarks>
+		/// Creates a new pass-through encoder.
+		/// </remarks>
 		public PassThroughEncoder (ContentEncoding encoding)
 		{
 			Encoding = encoding;
@@ -47,6 +50,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Clone the <see cref="PassThroughEncoder"/> with its current state.
 		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="PassThroughEncoder"/> with exactly the same state as the current encoder.
+		/// </remarks>
 		/// <returns>A new <see cref="PassThroughEncoder"/> with identical state.</returns>
 		public IMimeEncoder Clone ()
 		{
@@ -64,6 +70,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Estimates the length of the output.
 		/// </summary>
+		/// <remarks>
+		/// Estimates the number of bytes needed to encode the specified number of input bytes.
+		/// </remarks>
 		/// <returns>The estimated output length.</returns>
 		/// <param name='inputLength'>The input length.</param>
 		public int EstimateOutputLength (int inputLength)
@@ -152,6 +161,9 @@ namespace MimeKit.Encodings {
 		/// <summary>
 		/// Resets the encoder.
 		/// </summary>
+		/// <remarks>
+		/// Resets the state of the encoder.
+		/// </remarks>
 		public void Reset ()
 		{
 		}

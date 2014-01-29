@@ -123,7 +123,7 @@ namespace MimeKit.Cryptography {
 			if (protocol == null)
 				throw new ArgumentNullException ("protocol");
 
-			var type = protocol.ToLowerInvariant ().Split (new char[] { '/' });
+			var type = protocol.ToLowerInvariant ().Split ('/');
 			if (type.Length != 2 || type[0] != "application")
 				return false;
 
@@ -275,6 +275,18 @@ namespace MimeKit.Cryptography {
         {
 
         }
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.OpenPgpContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Subclasses choosing to use this constructor MUST set the <see cref="PublicKeyRingPath"/>,
+		/// <see cref="SecretKeyRingPath"/>, <see cref="PublicKeyRingBundle"/>, and the
+		/// <see cref="SecretKeyRingBundle"/> properties themselves.
+		/// </remarks>
+		protected OpenPgpContext ()
+		{
+		}
 
 		/// <summary>
 		/// Gets the public key associated with the <see cref="MimeKit.MailboxAddress"/>.
@@ -736,7 +748,7 @@ namespace MimeKit.Cryptography {
 			return Encrypt (GetPublicKeys (recipients), content);
 		}
 
-		Stream Compress (Stream content)
+		static Stream Compress (Stream content)
 		{
 			var compresser = new PgpCompressedDataGenerator (CompressionAlgorithmTag.ZLib);
 			var memory = new MemoryStream ();
@@ -757,7 +769,7 @@ namespace MimeKit.Cryptography {
 			return memory;
 		}
 
-		Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
+		static Stream Encrypt (PgpEncryptedDataGenerator encrypter, Stream content)
 		{
 			var memory = new MemoryStream ();
 
@@ -959,7 +971,7 @@ namespace MimeKit.Cryptography {
 
 					var literalGenerator = new PgpLiteralDataGenerator ();
 					using (var literal = literalGenerator.Open (signed, 't', "mime.txt", content.Length, DateTime.Now)) {
-						byte[] buf = new byte[4096];
+						var buf = new byte[4096];
 						int nread;
 
 						while ((nread = content.Read (buf, 0, buf.Length)) > 0) {
@@ -1124,6 +1136,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Saves the public key-ring bundle.
 		/// </summary>
+		/// <remarks>
+		/// <para>Atomically saves the public key-ring bundle to the path specified by <see cref="PublicKeyRingPath"/>.</para>
+		/// <para>Called by <see cref="Import"/> if any public keys were successfully imported.</para>
+		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the public key-ring bundle.
 		/// </exception>
@@ -1151,6 +1167,10 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Saves the secret key-ring bundle.
 		/// </summary>
+		/// <remarks>
+		/// <para>Atomically saves the secret key-ring bundle to the path specified by <see cref="SecretKeyRingPath"/>.</para>
+		/// <para>Called by <see cref="ImportSecretKeys"/> if any secret keys were successfully imported.</para>
+		/// </remarks>
 		/// <exception cref="System.IO.IOException">
 		/// An error occured while saving the secret key-ring bundle.
 		/// </exception>
