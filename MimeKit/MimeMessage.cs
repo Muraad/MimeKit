@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -568,6 +568,59 @@ namespace MimeKit {
 		/// <value>The body of the message.</value>
 		public MimeEntity Body {
 			get; set;
+		}
+
+		static IEnumerable<MimePart> EnumerateMimeParts (MimeEntity entity)
+		{
+			if (entity == null)
+				yield break;
+
+			var multipart = entity as Multipart;
+
+			if (multipart != null) {
+				foreach (var subpart in multipart) {
+					foreach (var part in EnumerateMimeParts (subpart))
+						yield return part;
+				}
+
+				yield break;
+			}
+
+			var msgpart = entity as MessagePart;
+
+			if (msgpart != null) {
+				var message = msgpart.Message;
+
+				foreach (var part in EnumerateMimeParts (message.Body))
+					yield return part;
+
+				yield break;
+			}
+
+			yield return (MimePart) entity;
+		}
+
+		/// <summary>
+		/// Gets the body parts of the message.
+		/// </summary>
+		/// <remarks>
+		/// Traverses over the MIME tree, enumerating all  of the <see cref="MimePart"/> objects.
+		/// </remarks>
+		/// <value>The body parts.</value>
+		public IEnumerable<MimePart> BodyParts {
+			get { return EnumerateMimeParts (Body); }
+		}
+
+		/// <summary>
+		/// Gets the attachments.
+		/// </summary>
+		/// <remarks>
+		/// Traverses over the MIME tree, enumerating all of the <see cref="MimePart"/> objects that
+		/// have a Content-Disposition header set to <c>"attachment"</c>.
+		/// </remarks>
+		/// <value>The attachments.</value>
+		public IEnumerable<MimePart> Attachments {
+			get { return EnumerateMimeParts (Body).Where (part => part.IsAttachment); }
 		}
 
 		/// <summary>
@@ -1295,6 +1348,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1323,6 +1379,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1342,6 +1401,9 @@ namespace MimeKit {
 		/// <para>-or-</para>
 		/// <para><paramref name="stream"/> is <c>null</c>.</para>
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1357,6 +1419,9 @@ namespace MimeKit {
 		/// <param name="stream">The stream.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="stream"/> is <c>null</c>.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1389,6 +1454,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
@@ -1427,6 +1495,9 @@ namespace MimeKit {
 		/// <exception cref="System.OperationCanceledException">
 		/// The operation was canceled via the cancellation token.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1455,6 +1526,9 @@ namespace MimeKit {
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
 		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
+		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
@@ -1479,6 +1553,9 @@ namespace MimeKit {
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
+		/// </exception>
+		/// <exception cref="System.FormatException">
+		/// There was an error parsing the entity.
 		/// </exception>
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.

@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2013 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc. (www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 //
 
 using System;
+using System.Runtime.Serialization;
 
 namespace MimeKit {
 	/// <summary>
@@ -37,12 +38,56 @@ namespace MimeKit {
 	/// as a <see cref="ErrorIndex"/> which marks the byte offset where the error
 	/// occurred.
 	/// </remarks>
-	public class ParseException : Exception
+	[Serializable]
+	public class ParseException : FormatException
 	{
-		internal ParseException (string message, int tokenIndex, int errorIndex) : base (message)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The stream context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		protected ParseException (SerializationInfo info, StreamingContext context) : base (info, context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			TokenIndex = info.GetInt32 ("TokenIndex");
+			ErrorIndex = info.GetInt32 ("ErrorIndex");
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.ParseException"/> class.
+		/// </summary>
+		/// <param name="message">The error message.</param>
+		/// <param name="tokenIndex">The byte offset of the token.</param>
+		/// <param name="errorIndex">The byte offset of the error.</param>
+		public ParseException (string message, int tokenIndex, int errorIndex) : base (message)
 		{
 			TokenIndex = tokenIndex;
 			ErrorIndex = errorIndex;
+		}
+
+		/// <summary>
+		/// When overridden in a derived class, sets the <see cref="System.Runtime.Serialization.SerializationInfo"/>
+		/// with information about the exception.
+		/// </summary>
+		/// <param name="info">The serialization info.</param>
+		/// <param name="context">The streaming context.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="info"/> is <c>null</c>.
+		/// </exception>
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			if (info == null)
+				throw new ArgumentNullException ("info");
+
+			info.AddValue ("TokenIndex", TokenIndex);
+			info.AddValue ("ErrorIndex", ErrorIndex);
+
+			base.GetObjectData (info, context);
 		}
 
 		/// <summary>

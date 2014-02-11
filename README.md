@@ -51,7 +51,7 @@ MimeKit is a C# library which may be used for the creation and parsing of messag
 
 ## License Information
 
-MimeKit is Copyright (C) 2012, 2013 Jeffrey Stedfast and is licensed under the MIT license:
+MimeKit is Copyright (C) 2012-2014 Xamarin Inc. and is licensed under the MIT license:
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -85,6 +85,15 @@ which is implemented in C and later added a C# binding called GMime-Sharp.
 Now that I typically find myself working in C# rather than lower level languages like C, I decided to
 begin writing a new parser in C# which would not depend on GMime. This would also allow me to have more
 flexibility in that I'd be able use Generics and create a more .NET-compliant API.
+
+## Installing via NuGet
+
+The easiest way to install MimeKit is via [NuGet](https://www.nuget.org/packages/MimeKit/).
+
+In Visual Studio's [Package Manager Console](http://docs.nuget.org/docs/start-here/using-the-package-manager-console),
+simply enter the following command:
+
+    Install-Package MimeKit
 
 ## Building
 
