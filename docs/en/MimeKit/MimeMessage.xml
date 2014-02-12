@@ -1,9 +1,9 @@
 <Type Name="MimeMessage" FullName="MimeKit.MimeMessage">
-  <TypeSignature Language="C#" Value="public sealed class MimeMessage" />
-  <TypeSignature Language="ILAsm" Value=".class public auto ansi sealed beforefieldinit MimeMessage extends System.Object" />
+  <TypeSignature Language="C#" Value="public class MimeMessage" />
+  <TypeSignature Language="ILAsm" Value=".class public auto ansi beforefieldinit MimeMessage extends System.Object" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.24.0.0</AssemblyVersion>
+    <AssemblyVersion>0.25.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -21,7 +21,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -36,7 +36,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(object[] args) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="args" Type="System.Object[]">
@@ -65,12 +65,33 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName="Attachments">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; Attachments { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; Attachments" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the attachments.
+            </summary>
+        <value>The attachments.</value>
+        <remarks>
+            Traverses over the MIME tree, enumerating all of the <see cref="T:MimeKit.MimePart" /> objects that
+            have a Content-Disposition header set to <c>"attachment"</c>.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Bcc">
       <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Bcc { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Bcc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -91,7 +112,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MimeEntity Body" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeEntity</ReturnType>
@@ -104,12 +125,32 @@
         <remarks>To be added.</remarks>
       </Docs>
     </Member>
+    <Member MemberName="BodyParts">
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt; BodyParts { get; }" />
+      <MemberSignature Language="ILAsm" Value=".property instance class System.Collections.Generic.IEnumerable`1&lt;class MimeKit.MimePart&gt; BodyParts" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Collections.Generic.IEnumerable&lt;MimeKit.MimePart&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+            Gets the body parts of the message.
+            </summary>
+        <value>The body parts.</value>
+        <remarks>
+            Traverses over the MIME tree, enumerating all  of the <see cref="T:MimeKit.MimePart" /> objects.
+            </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Cc">
       <MemberSignature Language="C#" Value="public MimeKit.InternetAddressList Cc { get; }" />
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList Cc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -127,7 +168,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset Date" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTimeOffset</ReturnType>
@@ -148,7 +189,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Encrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -193,7 +234,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList From" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -211,7 +252,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.HeaderList Headers" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.HeaderList</ReturnType>
@@ -229,7 +270,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string InReplyTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -250,7 +291,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -281,7 +322,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -321,7 +362,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -358,7 +399,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -404,7 +445,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -440,7 +481,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -485,7 +526,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -527,7 +568,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig class MimeKit.MimeMessage Load(class MimeKit.ParserOptions options, string fileName, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MimeMessage</ReturnType>
@@ -578,7 +619,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string MessageId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -602,7 +643,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class System.Version MimeVersion" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Version</ReturnType>
@@ -623,7 +664,7 @@
       <MemberSignature Language="ILAsm" Value=".method public static hidebysig specialname class System.Net.Mail.MailMessage op_Explicit(class MimeKit.MimeMessage message) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Net.Mail.MailMessage</ReturnType>
@@ -655,7 +696,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MessageIdList References" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MessageIdList</ReturnType>
@@ -676,7 +717,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ReplyTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -694,7 +735,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentBcc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -715,7 +756,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentCc" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -733,7 +774,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype System.DateTimeOffset ResentDate" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.DateTimeOffset</ReturnType>
@@ -751,7 +792,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentFrom" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -769,7 +810,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string ResentMessageId" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -793,7 +834,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentReplyTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -811,7 +852,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress ResentSender" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MailboxAddress</ReturnType>
@@ -832,7 +873,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList ResentTo" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -850,7 +891,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.MailboxAddress Sender" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.MailboxAddress</ReturnType>
@@ -871,7 +912,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -911,7 +952,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Sign(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -959,7 +1000,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1013,7 +1054,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void SignAndEncrypt(class MimeKit.Cryptography.CryptographyContext ctx, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1075,7 +1116,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance string Subject" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -1096,7 +1137,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance class MimeKit.InternetAddressList To" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.InternetAddressList</ReturnType>
@@ -1114,7 +1155,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1141,7 +1182,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1174,7 +1215,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1206,7 +1247,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void WriteTo(class MimeKit.FormatOptions options, class System.IO.Stream stream, valuetype System.Threading.CancellationToken cancellationToken) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.24.0.0</AssemblyVersion>
+        <AssemblyVersion>0.25.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
