@@ -30,6 +30,7 @@ using System.Text;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
+
 using System.Net.Mail;
 
 #if !__MIMEKIT_LITE__
@@ -1567,137 +1568,162 @@ namespace MimeKit {
 
 		#region System.Net.Mail support
 
-		static System.Net.Mime.ContentType GetContentType (ContentType contentType)
+		static MimePart GetMimePart (AttachmentBase item)
 		{
-			var ctype = new System.Net.Mime.ContentType ();
-			ctype.MediaType = string.Format ("{0}/{1}", contentType.MediaType, contentType.MediaSubtype);
+			var mimeType = item.ContentType.ToString ();
+			var part = new MimePart (ContentType.Parse (mimeType));
+			var attachment = item as Attachment;
 
-			foreach (var param in contentType.Parameters)
-				ctype.Parameters.Add (param.Name, param.Value);
-
-			return ctype;
-		}
-
-		static System.Net.Mime.TransferEncoding GetTransferEncoding (ContentEncoding encoding)
-		{
-			switch (encoding) {
-			case ContentEncoding.QuotedPrintable:
-			case ContentEncoding.EightBit:
-				return System.Net.Mime.TransferEncoding.QuotedPrintable;
-			case ContentEncoding.SevenBit:
-				return System.Net.Mime.TransferEncoding.SevenBit;
-			default:
-				return System.Net.Mime.TransferEncoding.Base64;
+			if (attachment != null) {
+				var disposition = attachment.ContentDisposition.ToString ();
+				part.ContentDisposition = ContentDisposition.Parse (disposition);
 			}
-		}
 
-		static void AddBodyPart (MailMessage message, MimeEntity entity)
-		{
-			if (entity is MessagePart) {
-				// FIXME: how should this be converted into a MailMessage?
-			} else if (entity is Multipart) {
-				var multipart = (Multipart) entity;
-
-				if (multipart.ContentType.Matches ("multipart", "alternative")) {
-					foreach (var part in multipart.OfType<MimePart> ()) {
-						// clone the content
-						var content = new MemoryStream ();
-						part.ContentObject.DecodeTo (content);
-						content.Position = 0;
-
-						var view = new AlternateView (content, GetContentType (part.ContentType));
-						view.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
-						if (!string.IsNullOrEmpty (part.ContentId))
-							view.ContentId = part.ContentId;
-
-						message.AlternateViews.Add (view);
-					}
-				} else {
-					foreach (var part in multipart)
-						AddBodyPart (message, part);
-				}
-			} else {
-				var part = (MimePart) entity;
-
-				if (part.IsAttachment || !string.IsNullOrEmpty (message.Body) || !(part is TextPart)) {
-					// clone the content
-					var content = new MemoryStream ();
-					part.ContentObject.DecodeTo (content);
-					content.Position = 0;
-
-					var attachment = new Attachment (content, GetContentType (part.ContentType));
-
-					if (part.ContentDisposition != null) {
-						attachment.ContentDisposition.DispositionType = part.ContentDisposition.Disposition;
-						foreach (var param in part.ContentDisposition.Parameters)
-							attachment.ContentDisposition.Parameters.Add (param.Name, param.Value);
-					}
-
-					attachment.TransferEncoding = GetTransferEncoding (part.ContentTransferEncoding);
-
-					if (!string.IsNullOrEmpty (part.ContentId))
-						attachment.ContentId = part.ContentId;
-
-					message.Attachments.Add (attachment);
-				} else {
-					message.IsBodyHtml = part.ContentType.Matches ("text", "html");
-					message.Body = ((TextPart) part).Text;
-				}
+			switch (item.TransferEncoding) {
+			case System.Net.Mime.TransferEncoding.QuotedPrintable:
+				part.ContentTransferEncoding = ContentEncoding.QuotedPrintable;
+				break;
+			case System.Net.Mime.TransferEncoding.Base64:
+				part.ContentTransferEncoding = ContentEncoding.Base64;
+				break;
+			case System.Net.Mime.TransferEncoding.SevenBit:
+				part.ContentTransferEncoding = ContentEncoding.SevenBit;
+				break;
 			}
+
+			if (item.ContentId != null)
+				part.ContentId = item.ContentId;
+
+			var stream = new MemoryStream ();
+			item.ContentStream.CopyTo (stream);
+			stream.Position = 0;
+
+			part.ContentObject = new ContentObject (stream, ContentEncoding.Default);
+
+			return part;
 		}
 
 		/// <summary>
-		/// Explicit cast to convert a <see cref="MimeMessage"/> to a
-		/// <see cref="System.Net.Mail.MailMessage"/>.
+		/// Creates a new <see cref="MimeMessage"/> from a <see cref="System.Net.Mail.MailMessage"/>.
 		/// </summary>
-		/// <remarks>
-		/// <para>Casting a <see cref="MimeMessage"/> to a <see cref="System.Net.Mail.MailMessage"/>
-		/// makes it possible to use MimeKit with <see cref="System.Net.Mail.SmtpClient"/>.</para>
-		/// <para>It should be noted, however, that <see cref="System.Net.Mail.MailMessage"/>
-		/// cannot represent all MIME structures that can be constructed using MimeKit,
-		/// so the conversion may not be perfect.</para>
-		/// </remarks>
-		/// <returns>A <see cref="System.Net.Mail.MailMessage"/>.</returns>
+		/// <returns>The message.</returns>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.ArgumentNullException">
-		/// The <paramref name="message"/> is <c>null</c>.
+		/// <paramref name="message"/> is <c>null</c>.
 		/// </exception>
-		public static explicit operator MailMessage (MimeMessage message)
+		public static MimeMessage CreateFromMailMessage (MailMessage message)
 		{
 			if (message == null)
 				throw new ArgumentNullException ("message");
 
-			var from = message.From.Mailboxes.FirstOrDefault ();
-			var msg = new MailMessage ();
-			var sender = message.Sender;
+			var headers = new List<Header> ();
+			foreach (var field in message.Headers.AllKeys) {
+				foreach (var value in message.Headers.GetValues (field))
+					headers.Add (new Header (field, value));
+			}
 
-			foreach (var header in message.Headers)
-				msg.Headers.Add (header.Field, header.Value);
+			var msg = new MimeMessage (ParserOptions.Default, headers);
+			MimeEntity body = null;
 
-			if (sender != null)
-				msg.Sender = (MailAddress) sender;
+			if (message.Sender != null)
+				msg.Sender = (MailboxAddress) message.Sender;
+			if (message.From != null)
+				msg.From.Add ((MailboxAddress) message.From);
+			msg.ReplyTo.AddRange ((InternetAddressList) message.ReplyToList);
+			msg.To.AddRange ((InternetAddressList) message.To);
+			msg.Cc.AddRange ((InternetAddressList) message.CC);
+			msg.Bcc.AddRange ((InternetAddressList) message.Bcc);
+			msg.Subject = message.Subject ?? string.Empty;
 
-			if (from != null)
-				msg.From = (MailAddress) from;
+			switch (message.Priority) {
+			case MailPriority.High:
+				msg.Headers.Add (HeaderId.Priority, "urgent");
+				msg.Headers.Add (HeaderId.Importance, "high");
+				msg.Headers.Add ("X-Priority", "1");
+				break;
+			case MailPriority.Low:
+				msg.Headers.Add (HeaderId.Priority, "non-urgent");
+				msg.Headers.Add (HeaderId.Importance, "low");
+				msg.Headers.Add ("X-Priority", "5");
+				break;
+			}
 
-			foreach (var mailbox in message.ReplyTo.Mailboxes)
-				msg.ReplyToList.Add ((MailAddress) mailbox);
+			if (message.Body != null) {
+				var text = new TextPart (message.IsBodyHtml ? "html" : "plain");
+				text.SetText (message.BodyEncoding ?? Encoding.UTF8, message.Body);
+				body = text;
+			}
 
-			foreach (var mailbox in message.To.Mailboxes)
-				msg.To.Add ((MailAddress) mailbox);
+			if (message.AlternateViews.Count > 0) {
+				var alternative = new Multipart ("alternative");
 
-			foreach (var mailbox in message.Cc.Mailboxes)
-				msg.CC.Add ((MailAddress) mailbox);
+				if (body != null)
+					alternative.Add (body);
 
-			foreach (var mailbox in message.Bcc.Mailboxes)
-				msg.Bcc.Add ((MailAddress) mailbox);
+				foreach (var view in message.AlternateViews) {
+					var part = GetMimePart (view);
 
-			msg.Subject = message.Subject;
+					if (view.BaseUri != null)
+						part.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
 
-			if (message.Body != null)
-				AddBodyPart (msg, message.Body);
+					if (view.LinkedResources.Count > 0) {
+						var type = part.ContentType.MediaType + "/" + part.ContentType.MediaSubtype;
+						var related = new Multipart ("related");
+
+						related.ContentType.Parameters.Add ("type", type);
+
+						if (view.BaseUri != null)
+							related.Headers.Add (HeaderId.ContentLocation, view.BaseUri.ToString ());
+
+						related.Add (part);
+
+						foreach (var resource in view.LinkedResources) {
+							part = GetMimePart (resource);
+
+							if (resource.ContentLink != null)
+								part.Headers.Add (HeaderId.ContentLocation, resource.ContentLink.ToString ());
+
+							related.Add (part);
+						}
+
+						alternative.Add (related);
+					} else {
+						alternative.Add (part);
+					}
+				}
+
+				body = alternative;
+			}
+
+			if (message.Attachments.Count > 0) {
+				var mixed = new Multipart ("mixed");
+
+				if (body != null)
+					mixed.Add (body);
+
+				foreach (var attachment in message.Attachments)
+					mixed.Add (GetMimePart (attachment));
+
+				body = mixed;
+			}
+
+			msg.Body = body;
 
 			return msg;
+		}
+
+		/// <summary>
+		/// Explicit cast to convert a <see cref="System.Net.Mail.MailMessage"/> to a
+		/// <see cref="MimeMessage"/>.
+		/// </summary>
+		/// <remarks>
+		/// Allows creation of messages using Microsoft's System.Net.Mail APIs.
+		/// </remarks>
+		/// <returns>A <see cref="MimeMessage"/>.</returns>
+		/// <param name="message">The message.</param>
+		public static explicit operator MimeMessage (MailMessage message)
+		{
+			return message != null ? CreateFromMailMessage (message) : null;
 		}
 
 		#endregion

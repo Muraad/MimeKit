@@ -29,8 +29,6 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
-using MimeKit.Utils;
-
 namespace MimeKit {
 	/// <summary>
 	/// A list of Message-Ids, as found in the References header.
@@ -45,6 +43,19 @@ namespace MimeKit {
 		public MessageIdList ()
 		{
 			references = new List<string> ();
+		}
+
+		/// <summary>
+		/// Clones the <see cref="MessageIdList"/>.
+		/// </summary>
+		public MessageIdList Clone ()
+		{
+			var clone = new MessageIdList ();
+
+			for (int i = 0; i < references.Count; i++)
+				clone.references.Add (references[i]);
+
+			return clone;
 		}
 
 		#region IList implementation
@@ -74,7 +85,7 @@ namespace MimeKit {
 			if (!InternetAddress.TryParse (ParserOptions.Default, buffer, ref index, buffer.Length, false, out addr) || !(addr is MailboxAddress))
 				throw new ArgumentException ("Invalid Message-Id format.", "messageId");
 
-			return "<" + ((MailboxAddress) addr).Address + ">";
+			return ((MailboxAddress) addr).Address;
 		}
 
 		/// <summary>
@@ -279,7 +290,9 @@ namespace MimeKit {
 				if (builder.Length > 0)
 					builder.Append (' ');
 
+				builder.Append ('<');
 				builder.Append (references[i]);
+				builder.Append ('>');
 			}
 
 			return builder.ToString ();

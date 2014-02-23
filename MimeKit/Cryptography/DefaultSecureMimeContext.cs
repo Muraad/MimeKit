@@ -60,7 +60,7 @@ namespace MimeKit.Cryptography {
 		/// </remarks>
 		public static readonly string DefaultDatabasePath;
 
-		readonly X509CertificateDatabase dbase;
+		readonly IX509CertificateDatabase dbase;
 
 		static DefaultSecureMimeContext ()
 		{
@@ -117,7 +117,7 @@ namespace MimeKit.Cryptography {
 			if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
 				Directory.CreateDirectory (dir);
 
-			dbase = new X509CertificateDatabase (fileName, password);
+			dbase = new SqliteCertificateDatabase (fileName, password);
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.
