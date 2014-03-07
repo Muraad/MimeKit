@@ -3,7 +3,7 @@
   <TypeSignature Language="ILAsm" Value=".class public auto ansi DefaultSecureMimeContext extends MimeKit.Cryptography.SecureMimeContext" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.26.0.0</AssemblyVersion>
+    <AssemblyVersion>0.27.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>MimeKit.Cryptography.SecureMimeContext</BaseTypeName>
@@ -26,7 +26,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor() cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -49,7 +49,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="password" Type="System.String" />
@@ -75,7 +75,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig specialname rtspecialname instance void .ctor(string fileName, string password) cil managed" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="fileName" Type="System.String" />
@@ -114,7 +114,7 @@
       <MemberSignature Language="ILAsm" Value=".field public static initonly string DefaultDatabasePath" />
       <MemberType>Field</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -134,7 +134,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void Dispose(bool disposing) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -150,7 +150,10 @@
             Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> and
             optionally releases the managed resources.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Releases the unmanaged resources used by the <see cref="T:MimeKit.Cryptography.DefaultSecureMimeContext" /> and
+            optionally releases the managed resources.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCertificate">
@@ -158,7 +161,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.X509Certificate GetCertificate(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.X509Certificate</ReturnType>
@@ -172,7 +175,9 @@
             Gets the X.509 certificate matching the specified selector.
             </summary>
         <returns>The certificate on success; otherwise <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the first certificate that matches the specified selector.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetCertificateRevocationLists">
@@ -180,7 +185,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetCertificateRevocationLists() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -203,7 +208,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsRecipient GetCmsRecipient(class MimeKit.MailboxAddress mailbox) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsRecipient</ReturnType>
@@ -222,7 +227,7 @@
             <see cref="P:MimeKit.Cryptography.CmsRecipient.EncryptionAlgorithms" /> for the specified mailbox.</para>
           <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
             <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
-            the mailbox address.</para>
+            the mailbox address for database lookups.</para>
         </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
@@ -234,7 +239,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class MimeKit.Cryptography.CmsSigner GetCmsSigner(class MimeKit.MailboxAddress mailbox, valuetype MimeKit.Cryptography.DigestAlgorithm digestAlgo) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Cryptography.CmsSigner</ReturnType>
@@ -250,7 +255,13 @@
             Gets the <see cref="T:MimeKit.Cryptography.CmsSigner" /> for the specified mailbox.
             </summary>
         <returns>A <see cref="T:MimeKit.Cryptography.CmsSigner" />.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Constructs a <see cref="T:MimeKit.Cryptography.CmsSigner" /> with the appropriate signing certificate
+            for the specified mailbox.</para>
+          <para>If the mailbox is a <see cref="T:MimeKit.Cryptography.SecureMailboxAddress" />, the
+            <see cref="P:MimeKit.Cryptography.SecureMailboxAddress.Fingerprint" /> property will be used instead of
+            the mailbox address for database lookups.</para>
+        </remarks>
         <exception cref="T:MimeKit.Cryptography.CertificateNotFoundException">
             A certificate for the specified <paramref name="mailbox" /> could not be found.
             </exception>
@@ -261,7 +272,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.X509.Store.IX509Store GetIntermediateCertificates() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.X509.Store.IX509Store</ReturnType>
@@ -284,7 +295,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Crypto.AsymmetricKeyParameter GetPrivateKey(class Org.BouncyCastle.X509.Store.IX509Selector selector) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Crypto.AsymmetricKeyParameter</ReturnType>
@@ -298,7 +309,9 @@
             Gets the private key for the certificate matching the specified selector.
             </summary>
         <returns>The private key on success; otherwise <c>null</c>.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the private key for the first certificate that matches the specified selector.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="GetTrustedAnchors">
@@ -306,7 +319,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance class Org.BouncyCastle.Utilities.Collections.HashSet GetTrustedAnchors() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>Org.BouncyCastle.Utilities.Collections.HashSet</ReturnType>
@@ -328,7 +341,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class Org.BouncyCastle.X509.X509Certificate certificate) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -339,9 +352,11 @@
       <Docs>
         <param name="certificate">The certificate.</param>
         <summary>
-            Import the specified certificate.
+            Imports a certificate.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the specified certificate into the database.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="certificate" /> is <c>null</c>.
             </exception>
@@ -352,7 +367,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class Org.BouncyCastle.X509.X509Crl crl) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -363,9 +378,11 @@
       <Docs>
         <param name="crl">The certificate revocation list.</param>
         <summary>
-            Import the specified certificate revocation list.
+            Imports a certificate revocation list.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports the specified certificate revocation list.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="crl" /> is <c>null</c>.
             </exception>
@@ -376,7 +393,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig instance void Import(class System.IO.Stream stream, bool trusted) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -392,7 +409,9 @@
         <summary>
             Imports a DER-encoded certificate stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports all of the certificates in the DER-encoded stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="stream" /> is <c>null</c>.
             </exception>
@@ -403,7 +422,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig virtual instance void Import(class System.IO.Stream stream, string password) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -418,7 +437,9 @@
         <summary>
             Imports certificates and keys from a pkcs12-encoded stream.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Imports all of the certificates and keys from the pkcs12-encoded stream.
+            </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="stream" /> is <c>null</c>.</para>
@@ -439,7 +460,7 @@
       <MemberSignature Language="ILAsm" Value=".method familyhidebysig virtual instance void UpdateSecureMimeCapabilities(class Org.BouncyCastle.X509.X509Certificate certificate, valuetype MimeKit.Cryptography.EncryptionAlgorithm[] algorithms, valuetype System.DateTime timestamp) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -456,7 +477,9 @@
         <summary>
             Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
             </summary>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Updates the known S/MIME capabilities of the client used by the recipient that owns the specified certificate.
+            </remarks>
       </Docs>
     </Member>
   </Members>

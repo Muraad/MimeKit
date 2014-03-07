@@ -3,14 +3,16 @@
   <TypeSignature Language="ILAsm" Value=".class public interface auto ansi abstract IMimeDecoder" />
   <AssemblyInfo>
     <AssemblyName>MimeKit</AssemblyName>
-    <AssemblyVersion>0.26.0.0</AssemblyVersion>
+    <AssemblyVersion>0.27.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Interfaces />
   <Docs>
     <summary>
             An interface for incrementally decoding content.
             </summary>
-    <remarks>To be added.</remarks>
+    <remarks>
+            An interface for incrementally decoding content.
+            </remarks>
   </Docs>
   <Members>
     <Member MemberName="Clone">
@@ -18,7 +20,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance class MimeKit.Encodings.IMimeDecoder Clone() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.Encodings.IMimeDecoder</ReturnType>
@@ -39,7 +41,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Decode(unsigned int8* input, int32 length, unsigned int8* output) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -57,7 +59,12 @@
             Decodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Decodes the specified input into the output buffer.</para>
+          <para>The output buffer should be large enough to hold all of the
+            decoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.IMimeDecoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Decode">
@@ -65,7 +72,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 Decode(unsigned int8[] input, int32 startIndex, int32 length, unsigned int8[] output) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -85,7 +92,12 @@
             Decodes the specified input into the output buffer.
             </summary>
         <returns>The number of bytes written to the output buffer.</returns>
-        <remarks>To be added.</remarks>
+        <remarks>
+          <para>Decodes the specified input into the output buffer.</para>
+          <para>The output buffer should be large enough to hold all of the
+            decoded input. For estimating the size needed for the output buffer,
+            see <see cref="M:MimeKit.Encodings.IMimeDecoder.EstimateOutputLength(System.Int32)" />.</para>
+        </remarks>
         <exception cref="T:System.ArgumentNullException">
           <para>
             <paramref name="input" /> is <c>null</c>.</para>
@@ -110,7 +122,7 @@
       <MemberSignature Language="ILAsm" Value=".property instance valuetype MimeKit.ContentEncoding Encoding" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>MimeKit.ContentEncoding</ReturnType>
@@ -120,7 +132,9 @@
             Gets the encoding.
             </summary>
         <value>The encoding.</value>
-        <remarks>To be added.</remarks>
+        <remarks>
+            Gets the encoding that the decoder supports.
+            </remarks>
       </Docs>
     </Member>
     <Member MemberName="EstimateOutputLength">
@@ -128,7 +142,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance int32 EstimateOutputLength(int32 inputLength) cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -152,7 +166,7 @@
       <MemberSignature Language="ILAsm" Value=".method public hidebysig newslot virtual instance void Reset() cil managed" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>0.26.0.0</AssemblyVersion>
+        <AssemblyVersion>0.27.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

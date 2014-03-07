@@ -3,7 +3,7 @@
 //
 // Author: Jeffrey Stedfast <jeff@xamarin.com>
 //
-// Copyright (c) 2012 Jeffrey Stedfast
+// Copyright (c) 2013-2014 Xamarin Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -61,6 +61,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds a parameter with the specified name and value.
 		/// </summary>
+		/// <remarks>
+		/// Adds a new parameter to the list with the specified name and value.
+		/// </remarks>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -79,6 +82,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="MimeKit.ParameterList"/> contains a parameter with the specified name.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the parameter list contains a parameter with the specified name.
+		/// </remarks>
 		/// <returns><value>true</value> if the requested parameter exists;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
@@ -96,6 +102,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the requested parameter, if it exists.
 		/// </summary>
+		/// <remarks>
+		/// Finds the index of the parameter with the specified name, if it exists.
+		/// </remarks>
 		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -117,6 +126,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Inserts a parameter with the specified name and value at the given index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts a new parameter with the given name and value at the specified index.
+		/// </remarks>
 		/// <param name="index">The index to insert the parameter.</param>
 		/// <param name="name">The parameter name.</param>
 		/// <param name="value">The parameter value.</param>
@@ -140,10 +152,13 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes the first occurance of the specified parameter.
+		/// Removes the specified parameter.
 		/// </summary>
-		/// <returns><value>true</value> if the frst occurance of the specified
-		/// parameter was removed; otherwise <value>false</value>.</returns>
+		/// <remarks>
+		/// Removes the parameter with the specified name from the list, if it exists.
+		/// </remarks>
+		/// <returns><value>true</value> if the specified parameter was removed;
+		/// otherwise <value>false</value>.</returns>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <paramref name="name"/> is <c>null</c>.
@@ -161,9 +176,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Gets or sets the value of the first occurance of a parameter
-		/// with the specified name.
+		/// Gets or sets the value of a parameter with the specified name.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the value of a parameter with the specified name.
+		/// </remarks>
+		/// <value>The value of the specified parameter if it exists; otherwise <c>null</c>.</value>
 		/// <param name="name">The parameter name.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// <para><paramref name="name"/> is <c>null</c>.</para>
@@ -205,6 +223,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the number of parameters in the <see cref="MimeKit.ParameterList"/>.
 		/// </summary>
+		/// <remarks>
+		/// Indicates the number of parameters in the list.
+		/// </remarks>
 		/// <value>The number of parameters.</value>
 		public int Count {
 			get { return parameters.Count; }
@@ -213,6 +234,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets a value indicating whether this instance is read only.
 		/// </summary>
+		/// <remarks>
+		/// A <see cref="ParameterList"/> is never read-only.
+		/// </remarks>
 		/// <value><c>true</c> if this instance is read only; otherwise, <c>false</c>.</value>
 		public bool IsReadOnly {
 			get { return false; }
@@ -221,6 +245,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Adds the specified parameter.
 		/// </summary>
+		/// <remarks>
+		/// Adds the specified parameter to the end of the list.
+		/// </remarks>
 		/// <param name="param">The parameter to add.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="param"/> is <c>null</c>.
@@ -245,8 +272,11 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Removes all parameters from the <see cref="MimeKit.ParameterList"/>.
+		/// Clears the parameter list.
 		/// </summary>
+		/// <remarks>
+		/// Removes all of the parameters from the list.
+		/// </remarks>
 		public void Clear ()
 		{
 			foreach (var param in parameters)
@@ -261,6 +291,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Checks if the <see cref="MimeKit.ParameterList"/> contains the specified parameter.
 		/// </summary>
+		/// <remarks>
+		/// Determines whether or not the parameter list contains the specified parameter.
+		/// </remarks>
 		/// <returns><value>true</value> if the specified parameter is contained;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="param">The parameter.</param>
@@ -278,6 +311,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Copies all of the contained parameters to the specified array.
 		/// </summary>
+		/// <remarks>
+		/// Copies all of the parameters within the <see cref="ParameterList"/> into the array,
+		/// starting at the specified array index.
+		/// </remarks>
 		/// <param name="array">The array to copy the parameters to.</param>
 		/// <param name="arrayIndex">The index into the array.</param>
 		public void CopyTo (Parameter[] array, int arrayIndex)
@@ -288,6 +325,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the specified parameter.
 		/// </summary>
+		/// <remarks>
+		/// Removes the specified parameter from the list.
+		/// </remarks>
 		/// <returns><value>true</value> if the specified parameter was removed;
 		/// otherwise <value>false</value>.</returns>
 		/// <param name="param">The parameter.</param>
@@ -317,6 +357,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets the index of the requested parameter, if it exists.
 		/// </summary>
+		/// <remarks>
+		/// Finds the index of the specified parameter, if it exists.
+		/// </remarks>
 		/// <returns>The index of the requested parameter; otherwise <value>-1</value>.</returns>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -333,6 +376,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Inserts the specified parameter at the given index.
 		/// </summary>
+		/// <remarks>
+		/// Inserts the parameter at the specified index in the list.
+		/// </remarks>
 		/// <param name="index">The index to insert the parameter.</param>
 		/// <param name="param">The parameter.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -366,6 +412,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Removes the parameter at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Removes the parameter at the specified index.
+		/// </remarks>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentOutOfRangeException">
 		/// The <paramref name="index"/> is out of range.
@@ -387,6 +436,10 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets or sets the <see cref="MimeKit.Parameter"/> at the specified index.
 		/// </summary>
+		/// <remarks>
+		/// Gets or sets the <see cref="MimeKit.Parameter"/> at the specified index.
+		/// </remarks>
+		/// <value>The parameter at the specified index.</value>
 		/// <param name="index">The index.</param>
 		/// <exception cref="System.ArgumentNullException">
 		/// The <paramref name="value"/> is <c>null</c>.
@@ -440,6 +493,9 @@ namespace MimeKit {
 		/// <summary>
 		/// Gets an enumerator for the list of parameters.
 		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of parameters.
+		/// </remarks>
 		/// <returns>The enumerator.</returns>
 		public IEnumerator<Parameter> GetEnumerator ()
 		{
@@ -450,6 +506,13 @@ namespace MimeKit {
 
 		#region IEnumerable implementation
 
+		/// <summary>
+		/// Gets an enumerator for the list of parameters.
+		/// </summary>
+		/// <remarks>
+		/// Gets an enumerator for the list of parameters.
+		/// </remarks>
+		/// <returns>The enumerator.</returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return parameters.GetEnumerator ();
@@ -464,11 +527,12 @@ namespace MimeKit {
 		}
 
 		/// <summary>
-		/// Returns a <see cref="System.String"/> that represents the current
-		/// <see cref="MimeKit.ParameterList"/>.
+		/// Returns a string representation of the parameters in the <see cref="ParameterList"/>.
 		/// </summary>
-		/// <returns>A <see cref="System.String"/> that represents the current
-		/// <see cref="MimeKit.ParameterList"/>.</returns>
+		/// <remarks>
+		/// If there are multiple parameters in the list, they will be separated by a semicolon.
+		/// </remarks>
+		/// <returns>A string representing the <see cref="ParameterList"/>.</returns>
 		public override string ToString ()
 		{
 			var values = new StringBuilder ();
@@ -504,7 +568,8 @@ namespace MimeKit {
 			return index > startIndex;
 		}
 
-		class NameValuePair : IComparable<NameValuePair> {
+		class NameValuePair : IComparable<NameValuePair>
+		{
 			public int ValueLength;
 			public int ValueStart;
 			public bool Encoded;
@@ -638,7 +703,7 @@ namespace MimeKit {
 			else
 				ParseUtils.SkipToken (text, ref index, endIndex);
 
-			pair = new NameValuePair () {
+			pair = new NameValuePair {
 				ValueLength = index - valueIndex,
 				ValueStart = valueIndex,
 				Encoded = encoded,
@@ -712,7 +777,7 @@ namespace MimeKit {
 			length = hex.Decode (text, index, length, decoded);
 
 			int outLength = decoder.GetCharCount (decoded, 0, length, flush);
-			char[] output = new char[outLength];
+			var output = new char[outLength];
 
 			outLength = decoder.GetChars (decoded, 0, length, output, 0, flush);
 
