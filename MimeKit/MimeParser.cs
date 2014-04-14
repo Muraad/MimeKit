@@ -32,6 +32,10 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 using MimeKit.IO;
 
@@ -81,7 +85,7 @@ namespace MimeKit {
 
 		public override string ToString ()
 		{
-			return Encoding.UTF8.GetString (Marker);
+			return Encoding.UTF8.GetString (Marker, 0, Marker.Length);
 		}
 	}
 
@@ -717,15 +721,15 @@ namespace MimeKit {
 					}
 
 					if (length >= 5 && IsMboxMarker (start)) {
-						long startIndex = start - inbuf;
+						int startIndex = (int) (start - inbuf);
 
-						mboxMarkerOffset = GetOffset ((int) startIndex);
+						mboxMarkerOffset = GetOffset (startIndex);
 						mboxMarkerLength = (int) length;
 
 						if (mboxMarkerBuffer.Length < mboxMarkerLength)
 							Array.Resize (ref mboxMarkerBuffer, mboxMarkerLength);
 
-						Array.Copy (input, startIndex, mboxMarkerBuffer, 0, length);
+						Buffer.BlockCopy (input, startIndex, mboxMarkerBuffer, 0, (int) length);
 						complete = true;
 						break;
 					}
@@ -747,7 +751,7 @@ namespace MimeKit {
 			if (left < length)
 				Array.Resize (ref headerBuffer, NextAllocSize (headerIndex + length));
 
-			Array.Copy (input, startIndex, headerBuffer, headerIndex, length);
+			Buffer.BlockCopy (input, startIndex, headerBuffer, headerIndex, length);
 			headerIndex += length;
 		}
 
@@ -900,11 +904,14 @@ namespace MimeKit {
 								inptr++;
 						}
 
-						AppendRawHeaderData ((int) (start - inbuf), (int) length);
+						if (length > 0) {
+							AppendRawHeaderData ((int) (start - inbuf), (int) length);
+							midline = true;
+						}
+
 						inputIndex = (int) (inptr - inbuf);
 						left = (int) (inend - inptr);
 						needInput = true;
-						midline = true;
 						break;
 					}
 
@@ -976,7 +983,7 @@ namespace MimeKit {
 			case MimeParserState.Eos:
 				break;
 			default:
-				throw new ArgumentOutOfRangeException ("state");
+				throw new IndexOutOfRangeException ("state");
 			}
 
 			return state;
@@ -1117,8 +1124,8 @@ namespace MimeKit {
 
 				while (inptr < inend) {
 					// Note: we can always depend on byte[] arrays being 4-byte aligned on 32bit and 64bit architectures
-					int alignment = (inputIndex + 3) & ~3;
-					byte* aligned = inptr + alignment;
+					int alignment = (startIndex + 3) & ~3;
+					byte* aligned = inbuf + alignment;
 					byte* start = inptr;
 					byte c = *aligned;
 					uint mask;

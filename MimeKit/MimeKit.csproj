@@ -50,6 +50,9 @@
     <ProjectReference Include="..\Mono.Data.Sqlite\Mono.Data.Sqlite.csproj">
       <Project>{F26434C1-BA3D-41FB-B560-C009CB72B1B6}</Project>
       <Name>Mono.Data.Sqlite</Name>
+    <ProjectReference Include="..\..\bc-csharp\crypto\BouncyCastle.csproj">
+      <Project>{4C235092-820C-4DEB-9074-D356FB797D8B}</Project>
+      <Name>BouncyCastle</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +65,7 @@
     <Compile Include="Cryptography\CmsRecipientCollection.cs" />
     <Compile Include="Cryptography\CmsSigner.cs" />
     <Compile Include="Cryptography\CryptographyContext.cs" />
+    <Compile Include="Cryptography\DbExtensions.cs" />
     <Compile Include="Cryptography\DefaultSecureMimeContext.cs" />
     <Compile Include="Cryptography\DigestAlgorithm.cs" />
     <Compile Include="Cryptography\DigitalSignatureCollection.cs" />
@@ -86,6 +90,7 @@
     <Compile Include="Cryptography\SecureMimeType.cs" />
     <Compile Include="Cryptography\SqliteCertificateDatabase.cs" />
     <Compile Include="Cryptography\SubjectIdentifierType.cs" />
+    <Compile Include="Cryptography\TemporarySecureMimeContext.cs" />
     <Compile Include="Cryptography\WindowsSecureMimeContext.cs" />
     <Compile Include="Cryptography\X509CertificateDatabase.cs" />
     <Compile Include="Cryptography\X509CertificateExtensions.cs" />

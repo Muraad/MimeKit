@@ -28,6 +28,10 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 
 namespace MimeKit {
@@ -123,7 +127,7 @@ namespace MimeKit {
 
 			if (!string.IsNullOrEmpty (Name)) {
 				var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
-				var str = Encoding.ASCII.GetString (encoded);
+				var str = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
 
 				if (lineLength + str.Length > options.MaxLineLength) {
 					if (str.Length > options.MaxLineLength) {

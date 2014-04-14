@@ -39,7 +39,7 @@ namespace MimeKit.Utils {
 	/// </remarks>
 	public static class MimeUtils
 	{
-		static int MessageIdCounter;
+		static readonly Random random = new Random ((int) DateTime.Now.Ticks);
 
 		/// <summary>
 		/// Generates a Message-Id.
@@ -57,9 +57,13 @@ namespace MimeKit.Utils {
 			if (domain == null)
 				throw new ArgumentNullException ("domain");
 
-			return string.Format ("<{0}.{1}.{2}@{3}>", DateTime.Now.Ticks,
-			                      Process.GetCurrentProcess ().Id,
-			                      MessageIdCounter++, domain);
+			var guid = new byte[16];
+
+			lock (random) {
+				random.NextBytes (guid);
+			}
+
+			return string.Format ("<{0}@{1}>", new Guid (guid), domain);
 		}
 
 		/// <summary>
@@ -71,7 +75,11 @@ namespace MimeKit.Utils {
 		/// <returns>The message identifier.</returns>
 		public static string GenerateMessageId ()
 		{
+#if PORTABLE
+			return GenerateMessageId ("localhost.localdomain");
+#else
 			return GenerateMessageId (Dns.GetHostName ());
+#endif
 		}
 
 		/// <summary>
@@ -106,7 +114,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			do {
@@ -179,7 +187,7 @@ namespace MimeKit.Utils {
 			if (startIndex < 0 || startIndex > buffer.Length)
 				throw new ArgumentOutOfRangeException ("startIndex");
 
-			if (length < 0 || startIndex + length > buffer.Length)
+			if (length < 0 || length > (buffer.Length - startIndex))
 				throw new ArgumentOutOfRangeException ("length");
 
 			List<int> values = new List<int> ();

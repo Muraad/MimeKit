@@ -29,6 +29,12 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+using Encoder = Portable.Text.Encoder;
+using Decoder = Portable.Text.Decoder;
+#endif
+
 using MimeKit.Encodings;
 using MimeKit.Utils;
 
@@ -41,7 +47,7 @@ namespace MimeKit {
 	/// </remarks>
 	public class ParameterList : IList<Parameter>
 	{
-		static readonly StringComparer icase = StringComparer.InvariantCultureIgnoreCase;
+		static readonly StringComparer icase = StringComparer.OrdinalIgnoreCase;
 
 		readonly Dictionary<string, Parameter> table;
 		readonly List<Parameter> parameters;
@@ -858,6 +864,13 @@ namespace MimeKit {
 
 						if (parts[i].Encoded) {
 							bool flush = i + 1 >= parts.Count || !parts[i+1].Encoded;
+
+							// Note: Some mail clients mistakenly quote encoded parameter values when they shouldn't
+							if (length >= 2 && text[startIndex] == (byte) '"' && text[startIndex + length - 1] == (byte) '"') {
+								startIndex++;
+								length -= 2;
+							}
+
 							value += DecodeRfc2184 (ref decoder, hex, text, startIndex, length, flush);
 						} else if (length >= 2 && text[startIndex] == (byte) '"') {
 							var quoted = CharsetUtils.ConvertToUnicode (options, text, startIndex, length);

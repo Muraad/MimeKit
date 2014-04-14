@@ -29,7 +29,11 @@ using System.IO;
 using System.Data;
 using System.Text;
 
+#if __MOBILE__
 using Mono.Data.Sqlite;
+#else
+using System.Reflection;
+#endif
 
 using Org.BouncyCastle.X509;
 using Org.BouncyCastle.Asn1.X509;
@@ -39,14 +43,70 @@ namespace MimeKit.Cryptography {
 	/// <summary>
 	/// An X.509 certificate database built on SQLite.
 	/// </summary>
-	class SqliteCertificateDatabase : X509CertificateDatabase
+	/// <remarks>
+	/// <para>An X.509 certificate database is used for storing certificates, metdata related to the certificates
+	/// (such as encryption algorithms supported by the associated client), certificate revocation lists (CRLs),
+	/// and private keys.</para>
+	/// <para>This particular database uses SQLite to store the data.</para>
+	/// </remarks>
+	public class SqliteCertificateDatabase : X509CertificateDatabase
 	{
-		readonly SqliteConnection sqlite;
+#if !__MOBILE__
+		static readonly Type sqliteConnectionStringBuilderClass;
+		static readonly Type sqliteConnectionClass;
+		static readonly Assembly sqliteAssembly;
+#endif
+
+		readonly IDbConnection sqlite;
 		bool disposed;
+
+		// At class initialization we try to use reflection to load the
+		// Mono.Data.Sqlite assembly: this allows to use Sqlite as the 
+		// default certificate store without depending explicitly on the
+		// DLL.
+
+		static SqliteCertificateDatabase ()
+		{
+#if !__MOBILE__
+			if (Environment.OSVersion.Platform == PlatformID.Win32NT && Environment.Is64BitProcess)
+				return;
+
+			try {
+				sqliteAssembly = Assembly.Load ("Mono.Data.Sqlite");
+				if (sqliteAssembly != null) {
+					sqliteConnectionClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnection");
+					sqliteConnectionStringBuilderClass = sqliteAssembly.GetType ("Mono.Data.Sqlite.SqliteConnectionStringBuilder");
+
+					// Make sure that the runtime can load the native sqlite3 library
+					var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+					sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+
+					IsAvailable = true;
+				}
+			} catch (FileNotFoundException) {
+			} catch (FileLoadException) {
+			} catch (BadImageFormatException) {
+			}
+#else
+			IsAvailable = true;
+#endif
+		}
+
+		internal static bool IsAvailable {
+			get; private set;
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
 		/// </summary>
+		/// <remarks>
+		/// <para>Creates a new <see cref="SqliteCertificateDatabase"/> and opens a connection to the
+		/// SQLite database at the specified path using the Mono.Data.Sqlite binding to the native
+		/// SQLite library.</para>
+		/// <para>If Mono.Data.Sqlite is not available or if an alternative binding to the native
+		/// SQLite library is preferred, then consider using
+		/// <see cref="SqliteCertificateDatabase(System.Data.IDbConnection,string)"/> instead.</para>
+		/// </remarks>
 		/// <param name="fileName">The file name.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
 		/// <exception cref="System.ArgumentNullException">
@@ -68,6 +128,18 @@ namespace MimeKit.Cryptography {
 			if (fileName == null)
 				throw new ArgumentNullException ("fileName");
 
+#if !__MOBILE__
+			var builder = Activator.CreateInstance (sqliteConnectionStringBuilderClass);
+			sqliteConnectionStringBuilderClass.GetProperty ("DateTimeFormat").SetValue (builder, 0, null);
+			sqliteConnectionStringBuilderClass.GetProperty ("DataSource").SetValue (builder, fileName, null);
+
+			if (!File.Exists (fileName))
+				sqliteConnectionClass.GetMethod ("CreateFile").Invoke (null, new [] {fileName});
+
+			var connectionString = (string) sqliteConnectionStringBuilderClass.GetProperty ("ConnectionString").GetValue (builder, null);
+			sqlite = (IDbConnection) Activator.CreateInstance (sqliteConnectionClass, new [] { connectionString });
+			sqlite.Open ();
+#else
 			var builder = new SqliteConnectionStringBuilder ();
 			builder.DateTimeFormat = SQLiteDateFormats.Ticks;
 			builder.DataSource = fileName;
@@ -77,12 +149,40 @@ namespace MimeKit.Cryptography {
 
 			sqlite = new SqliteConnection (builder.ConnectionString);
 			sqlite.Open ();
+#endif
 
 			CreateCertificatesTable ();
 			CreateCrlsTable ();
 		}
 
-		static SqliteCommand GetCreateCertificatesTableCommand (SqliteConnection sqlite)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.SqliteCertificateDatabase"/> class.
+		/// </summary>
+		/// <remarks>
+		/// Creates a new <see cref="SqliteCertificateDatabase"/> using the provided SQLite database connection.
+		/// </remarks>
+		/// <param name="connection">The SQLite connection.</param>
+		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <para><paramref name="connection"/> is <c>null</c>.</para>
+		/// <para>-or-</para>
+		/// <para><paramref name="password"/> is <c>null</c>.</para>
+		/// </exception>
+		public SqliteCertificateDatabase (IDbConnection connection, string password) : base (password)
+		{
+			if (connection == null)
+				throw new ArgumentNullException ("connection");
+
+			sqlite = connection;
+
+			if (sqlite.State != ConnectionState.Open)
+				sqlite.Open ();
+
+			CreateCertificatesTable ();
+			CreateCrlsTable ();
+		}
+
+		static IDbCommand GetCreateCertificatesTableCommand (IDbConnection sqlite)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CERTIFICATES(");
 			var columns = X509CertificateRecord.ColumnNames;
@@ -129,7 +229,7 @@ namespace MimeKit.Cryptography {
 			// FIXME: create some indexes as well?
 		}
 
-		static SqliteCommand GetCreateCrlsTableCommand (SqliteConnection sqlite)
+		static IDbCommand GetCreateCrlsTableCommand (IDbConnection sqlite)
 		{
 			var statement = new StringBuilder ("CREATE TABLE IF NOT EXISTS CRLS(");
 			var columns = X509CrlRecord.ColumnNames;
@@ -171,6 +271,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the record matching the specified certificate.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record matching the specified certificate.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="certificate">The certificate.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -183,9 +286,9 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME AND SERIALNUMBER = @SERIALNUMBER AND FINGERPRINT = @FINGERPRINT LIMIT 1";
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
-			command.Parameters.AddWithValue ("@SERIALNUMBER", serialNumber);
-			command.Parameters.AddWithValue ("@FINGERPRINT", fingerprint);
+			command.AddParameterWithValue ("@ISSUERNAME", issuerName);
+			command.AddParameterWithValue ("@SERIALNUMBER", serialNumber);
+			command.AddParameterWithValue ("@FINGERPRINT", fingerprint);
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -194,6 +297,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="mailbox">The mailbox.</param>
 		/// <param name="now">The date and time for which the certificate should be valid.</param>
@@ -206,11 +312,11 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 			var constraints = " WHERE ";
 
-			command.Parameters.AddWithValue ("@BASICCONSTRAINTS", -1);
+			command.AddParameterWithValue ("@BASICCONSTRAINTS", -1);
 			constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS ";
 
 			constraints += "AND NOTBEFORE < @NOW AND NOTAFTER > @NOW ";
-			command.Parameters.AddWithValue ("@NOW", now);
+			command.AddParameterWithValue ("@NOW", now);
 
 			if (requirePrivateKey)
 				constraints += "AND PRIVATEKEY NOT NULL ";
@@ -218,14 +324,14 @@ namespace MimeKit.Cryptography {
 			if (secure != null && !string.IsNullOrEmpty (secure.Fingerprint)) {
 				if (secure.Fingerprint.Length < 40) {
 					constraints += "AND FINGERPRINT LIKE @FINGERPRINT";
-					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint + "%");
+					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint + "%");
 				} else {
 					constraints += "AND FINGERPRINT = @FINGERPRINT";
-					command.Parameters.AddWithValue ("@FINGERPRINT", secure.Fingerprint);
+					command.AddParameterWithValue ("@FINGERPRINT", secure.Fingerprint);
 				}
 			} else {
 				constraints += "AND SUBJECTEMAIL = @SUBJECTEMAIL";
-				command.Parameters.AddWithValue ("@SUBJECTEMAIL", mailbox.Address);
+				command.AddParameterWithValue ("@SUBJECTEMAIL", mailbox.Address);
 			}
 
 			command.CommandText = query + constraints;
@@ -237,6 +343,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the certificate records for the specified mailbox.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the certificate records for the specified mailbox.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="selector">Selector.</param>
 		/// <param name="trustedOnly">If set to <c>true</c> trusted only.</param>
@@ -250,7 +359,7 @@ namespace MimeKit.Cryptography {
 			var constraints = " WHERE ";
 
 			if (trustedOnly) {
-				command.Parameters.AddWithValue ("@TRUSTED", true);
+				command.AddParameterWithValue ("@TRUSTED", true);
 				constraints += "TRUSTED = @TRUSTED";
 			}
 
@@ -259,7 +368,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
 
-					command.Parameters.AddWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
+					command.AddParameterWithValue ("@BASICCONSTRAINTS", match.BasicConstraints);
 					constraints += "BASICCONSTRAINTS = @BASICCONSTRAINTS";
 				}
 
@@ -270,7 +379,7 @@ namespace MimeKit.Cryptography {
 						if (command.Parameters.Count > 0)
 							constraints += " AND ";
 
-						command.Parameters.AddWithValue ("@FLAGS", (int) flags);
+						command.AddParameterWithValue ("@FLAGS", (int) flags);
 						constraints += "KEYUSAGE & @FLAGS";
 					}
 				}
@@ -279,7 +388,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
 
-					command.Parameters.AddWithValue ("@ISSUERNAME", match.Issuer.ToString ());
+					command.AddParameterWithValue ("@ISSUERNAME", match.Issuer.ToString ());
 					constraints += "ISSUERNAME = @ISSUERNAME";
 				}
 
@@ -287,7 +396,7 @@ namespace MimeKit.Cryptography {
 					if (command.Parameters.Count > 0)
 						constraints += " AND ";
 
-					command.Parameters.AddWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
+					command.AddParameterWithValue ("@SERIALNUMBER", match.SerialNumber.ToString ());
 					constraints += "SERIALNUMBER = @SERIALNUMBER";
 				}
 			}
@@ -310,6 +419,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the CRL records matching the specified issuer.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the CRL records matching the specified issuer.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="issuer">The issuer.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -319,7 +431,7 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = query + "WHERE ISSUERNAME = @ISSUERNAME";
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuer.ToString ());
+			command.AddParameterWithValue ("@ISSUERNAME", issuer.ToString ());
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -328,6 +440,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select the record for the specified CRL.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select the record for the specified CRL.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="crl">The X.509 CRL.</param>
 		/// <param name="fields">The fields to return.</param>
@@ -338,9 +453,9 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = query + "WHERE DELTA = @DELTA AND ISSUERNAME = @ISSUERNAME AND THISUPDATE = @THISUPDATE LIMIT 1";
-			command.Parameters.AddWithValue ("@DELTA", crl.IsDelta ());
-			command.Parameters.AddWithValue ("@ISSUERNAME", issuerName);
-			command.Parameters.AddWithValue ("@THISUPDATE", crl.ThisUpdate);
+			command.AddParameterWithValue ("@DELTA", crl.IsDelta ());
+			command.AddParameterWithValue ("@ISSUERNAME", issuerName);
+			command.AddParameterWithValue ("@THISUPDATE", crl.ThisUpdate);
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -349,6 +464,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to select all CRLs in the table.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to select all CRLs in the table.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		protected override IDbCommand GetSelectAllCrlsCommand ()
 		{
@@ -363,6 +481,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to delete the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to delete the specified certificate record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		protected override IDbCommand GetDeleteCommand (X509CertificateRecord record)
@@ -370,7 +491,7 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = "DELETE FROM CERTIFICATES WHERE ID = @ID";
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.AddParameterWithValue ("@ID", record.Id);
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -379,6 +500,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to delete the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to delete the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The record.</param>
 		protected override IDbCommand GetDeleteCommand (X509CrlRecord record)
@@ -386,7 +510,7 @@ namespace MimeKit.Cryptography {
 			var command = sqlite.CreateCommand ();
 
 			command.CommandText = "DELETE FROM CRLS WHERE ID = @ID";
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.AddParameterWithValue ("@ID", record.Id);
 			command.CommandType = CommandType.Text;
 
 			return command;
@@ -395,6 +519,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to insert the specified certificate record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to insert the specified certificate record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		protected override IDbCommand GetInsertCommand (X509CertificateRecord record)
@@ -413,7 +540,7 @@ namespace MimeKit.Cryptography {
 				var value = GetValue (record, columns[i]);
 				var variable = "@" + columns[i];
 
-				command.Parameters.AddWithValue (variable, value);
+				command.AddParameterWithValue (variable, value);
 				statement.Append (columns[i]);
 				variables.Append (variable);
 			}
@@ -430,6 +557,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to insert the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to insert the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
 		protected override IDbCommand GetInsertCommand (X509CrlRecord record)
@@ -448,7 +578,7 @@ namespace MimeKit.Cryptography {
 				var value = GetValue (record, columns[i]);
 				var variable = "@" + columns[i];
 
-				command.Parameters.AddWithValue (variable, value);
+				command.AddParameterWithValue (variable, value);
 				statement.Append (columns[i]);
 				variables.Append (variable);
 			}
@@ -465,6 +595,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to update the specified record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to update the specified record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The certificate record.</param>
 		/// <param name="fields">The fields to update.</param>
@@ -485,11 +618,11 @@ namespace MimeKit.Cryptography {
 				statement.Append (" = ");
 				statement.Append (variable);
 
-				command.Parameters.AddWithValue (variable, value);
+				command.AddParameterWithValue (variable, value);
 			}
 
 			statement.Append (" WHERE ID = @ID");
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.AddParameterWithValue ("@ID", record.Id);
 
 			command.CommandText = statement.ToString ();
 			command.CommandType = CommandType.Text;
@@ -500,6 +633,9 @@ namespace MimeKit.Cryptography {
 		/// <summary>
 		/// Gets the database command to update the specified CRL record.
 		/// </summary>
+		/// <remarks>
+		/// Gets the database command to update the specified CRL record.
+		/// </remarks>
 		/// <returns>The database command.</returns>
 		/// <param name="record">The CRL record.</param>
 		protected override IDbCommand GetUpdateCommand (X509CrlRecord record)
@@ -519,11 +655,11 @@ namespace MimeKit.Cryptography {
 				statement.Append (" = ");
 				statement.Append (variable);
 
-				command.Parameters.AddWithValue (variable, value);
+				command.AddParameterWithValue (variable, value);
 			}
 
 			statement.Append (" WHERE ID = @ID");
-			command.Parameters.AddWithValue ("@ID", record.Id);
+			command.AddParameterWithValue ("@ID", record.Id);
 
 			command.CommandText = statement.ToString ();
 			command.CommandType = CommandType.Text;
@@ -535,6 +671,10 @@ namespace MimeKit.Cryptography {
 		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
 		/// optionally releases the managed resources.
 		/// </summary>
+		/// <remarks>
+		/// Releases the unmanaged resources used by the <see cref="SqliteCertificateDatabase"/> and
+		/// optionally releases the managed resources.
+		/// </remarks>
 		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources;
 		/// <c>false</c> to release only the unmanaged resources.</param>
 		protected override void Dispose (bool disposing)

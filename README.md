@@ -75,8 +75,8 @@ MimeKit is Copyright (C) 2012-2014 Xamarin Inc. and is licensed under the MIT li
 
 ## History
 
-As a developer and user of Electronic Mail clients, I had come to realize that the vast majority of E-Mail client
-(and server) software had less-than-satisfactory MIME implementations. More often than not these E-Mail clients
+As a developer and user of Electronic Mail clients, I had come to realize that the vast majority of email client
+(and server) software had less-than-satisfactory MIME implementations. More often than not these email clients
 created broken MIME messages and/or would incorrectly try to parse a MIME message thus subtracting from the full
 benefits that MIME was meant to provide. MimeKit is meant to address this issue by following the MIME specification
 as closely as possible while also providing programmers with an extremely easy to use high-level API.
@@ -87,6 +87,23 @@ which is implemented in C and later added a C# binding called GMime-Sharp.
 Now that I typically find myself working in C# rather than lower level languages like C, I decided to
 begin writing a new parser in C# which would not depend on GMime. This would also allow me to have more
 flexibility in that I'd be able use Generics and create a more .NET-compliant API.
+
+## Performance
+
+While mainstream beliefs may suggest that C# can never be as fast as C, it turns out that with a bit of creative
+parser design and a few clever optimizations 
+<sup>[[1](http://jeffreystedfast.blogspot.com/2013/09/optimization-tips-tricks-used-by.html)]
+[[2](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)]</sup>, MimeKit's performance
+is actually [on par with GMime](http://jeffreystedfast.blogspot.com/2014/03/gmime-gets-speed-boost.html).
+
+Since GMime is pretty well-known as a high-performance native MIME parser and MimeKit more-or-less matches GMime's
+performance, it stands to reason that MimeKit is likely unsurpassed in performance in the .NET MIME parser space.
+
+For a comparison, as I [blogged here](http://jeffreystedfast.blogspot.com/2013/10/optimization-tips-tricks-used-by.html)
+(I have since optimized MimeKit by at least another 30%), MimeKit is more than 25x faster than OpenPOP.NET, 75x faster
+than SharpMimeTools, and 65x faster than regex-based parsers. Even the commercial MIME parser offerings such as LimiLabs'
+Mail.dll and NewtonIdeas' Mime4Net cannot even come close to matching MimeKit's performance (they are both orders of
+magnitude slower than MimeKit).
 
 ## Installing via NuGet
 
@@ -103,6 +120,7 @@ First, you'll need to clone MimeKit and Bouncy Castle from my GitHub repository:
 
     git clone https://github.com/jstedfast/MimeKit.git
     git clone https://github.com/jstedfast/bc-csharp.git
+    git clone https://github.com/jstedfast/Portable.Text.Encoding.git
 
 Currently, MimeKit depends on the visual-studio-2010 branch of bc-csharp for the Visual Studio 2010 project
 files that I've added (to replace the Visual Studio 2003 project files). To switch to that branch,
@@ -400,6 +418,92 @@ builder.Attachments.Add ("C:\\Users\Joey\\Documents\\party.ics");
 message.Body = builder.ToMessageBody ();
 ```
 
+### Preparing to use MimeKit's S/MIME support
+
+Before you can begin using MimeKit's S/MIME support, you will need to decide which
+database to use for certificate storage.
+
+If you are targetting any of the Xamarin platforms (or Linux), you won't need to do
+anything (although you certianly can if you want to) because, by default, I've
+configured MimeKit to use the Mono.Data.Sqlite binding to SQLite.
+
+If you are, however, on any of the Windows platforms, you'll need to pick a System.Data
+provider such as [System.Data.SQLite](https://www.nuget.org/packages/System.Data.SQLite).
+Once you've made your choice and installed it (via NuGet or however), you'll need to
+implement your own `SecureMimeContext` class. Luckily, it's very simple to do. Assuming
+you've chosen System.Data.SQLite, here's how you'd implement your own `SecureMimeContext`
+class:
+
+```csharp
+using System.Data.SQLite;
+using MimeKit.Cryptography;
+
+using MyAppNamespace {
+    class MySecureMimeContext : DefaultSecureMimeContext
+    {
+        public MySecureMimeContext () : base (OpenDatabase ("C:\\wherever\\certdb.sqlite"))
+        {
+        }
+
+        static IX509CertificateDatabase OpenDatabase (string fileName)
+        {
+            var builder = new SQLiteConnectionStringBuilder ();
+            builder.DateTimeFormat = SQLiteDateFormats.Ticks;
+            builder.DataSource = fileName;
+
+            if (!File.Exists (fileName))
+                SQLiteConnection.CreateFile (fileName);
+
+            var sqlite = new SQLiteConnection (builder.ConnectionString);
+            sqlite.Open ();
+
+            return new SqliteCertificateDatabase (sqlite, "password");
+        }
+    }
+}
+```
+
+Now that you've implemented your own SecureMimeContext, you'll want to register it with MimeKit:
+
+```csharp
+CryptographyContext.Register (typeof (MySecureMimeContext));
+```
+
+Now you are ready to encrypt, decrypt, sign and verify S/MIME messages!
+
+### Preparing to use MimeKit's PGP/MIME support
+
+Like with S/MIME support, you also need to register your own `OpenPgpContext`. Unlike S/MIME, however,
+you don't need to choose a database if you subclass `GnuPGContext` because it uses GnuPG's PGP keyrings
+to load and store public and private keys. If you choose to subclass `GnuPGContext`, the only thing you
+you need to do is implement a password callback method:
+
+```csharp
+using MimeKit.Cryptography;
+
+namespace MyAppNamespace {
+    class MyGnuPGContext : GnuPGContext
+    {
+        public MyGnuPgContext () : base ()
+        {
+        }
+        
+        protected override string GetPasswordForKey (PgpSecretKey key)
+        {
+            // prompt the user (or a secure password cache) for the password for the specified secret key.
+            return "password";
+        }
+    }
+}
+```
+
+Once again, to register your OpenPgpContext, you can use the following code snippet:
+
+```csharp
+CryptographyContext.Register (typeof (MyGnuPGContext));
+```
+
+Now you are ready to encrypt, decrypt, sign and verify PGP/MIME messages!
 
 ### Digitally Signing Messages with S/MIME or PGP/MIME
 

@@ -31,6 +31,10 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 #if ENABLE_SNM
 using System.Net.Mail;
 #endif
@@ -182,14 +186,16 @@ namespace MimeKit {
 			// Do exactly as in the parameterless constructor but avoid setting a default
 			// value if an header already provided one.
 
-			if (!Headers.Contains ("From"))
-				Headers["From"] = string.Empty;
-			if (!Headers.Contains ("To"))
-				Headers["To"] = string.Empty;
+			if (!Headers.Contains (HeaderId.From))
+				Headers[HeaderId.From] = string.Empty;
+			if (!Headers.Contains (HeaderId.To))
+				Headers[HeaderId.To] = string.Empty;
 			if (date == default (DateTimeOffset))
 				Date = DateTimeOffset.Now;
-			if (!Headers.Contains ("Subject"))
+			if (!Headers.Contains (HeaderId.Subject))
 				Subject = string.Empty;
+			if (messageId == null)
+				MessageId = MimeUtils.GenerateMessageId ();
 		}
 
 		/// <summary>
@@ -200,10 +206,11 @@ namespace MimeKit {
 		/// </remarks>
 		public MimeMessage () : this (ParserOptions.Default.Clone ())
 		{
-			Headers["From"] = string.Empty;
-			Headers["To"] = string.Empty;
+			Headers[HeaderId.From] = string.Empty;
+			Headers[HeaderId.To] = string.Empty;
 			Date = DateTimeOffset.Now;
 			Subject = string.Empty;
+			MessageId = MimeUtils.GenerateMessageId ();
 		}
 
 		/// <summary>
@@ -756,12 +763,6 @@ namespace MimeKit {
 			if (stream == null)
 				throw new ArgumentNullException ("stream");
 
-			if (!Headers.Contains ("Date"))
-				Date = DateTimeOffset.Now;
-
-			if (messageId == null)
-				MessageId = MimeUtils.GenerateMessageId ();
-
 			if (version == null && Body != null && Body.Headers.Count > 0)
 				MimeVersion = new Version (1, 0);
 
@@ -908,7 +909,7 @@ namespace MimeKit {
 			return recipients;
 		}
 
-		#if ENABLE_CRYPTO
+#if ENABLE_CRYPTO
 		/// <summary>
 		/// Sign the message using the specified cryptography context and digest algorithm.
 		/// </summary>
@@ -1146,7 +1147,7 @@ namespace MimeKit {
 		{
 			SignAndEncrypt (ctx, DigestAlgorithm.Sha1);
 		}
-		#endif // ENABLE_CRYPTO
+#endif // ENABLE_CRYPTO
 
 		IEnumerable<Header> MergeHeaders ()
 		{
@@ -1212,7 +1213,7 @@ namespace MimeKit {
 				var builder = new StringBuilder ();
 
 				for (int i = 0; i < references.Count; i++) {
-					if (lineLength + references[i].Length >= options.MaxLineLength) {
+					if (i > 0 && lineLength + references[i].Length + 2 >= options.MaxLineLength) {
 						builder.Append (options.NewLine);
 						builder.Append ('\t');
 						lineLength = 1;
@@ -1222,7 +1223,7 @@ namespace MimeKit {
 					}
 
 					lineLength += references[i].Length;
-					builder.Append (references[i]);
+					builder.Append ("<" + references[i] + ">");
 				}
 
 				builder.Append (options.NewLine);
@@ -1564,6 +1565,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, CancellationToken.None);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeMessage"/> from the specified file.
 		/// </summary>
@@ -1713,8 +1715,9 @@ namespace MimeKit {
 		{
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
+#endif // !PORTABLE
 
-		#if ENABLE_SNM
+#if ENABLE_SNM
 		#region System.Net.Mail support
 
 		static MimePart GetMimePart (AttachmentBase item)
@@ -1879,6 +1882,6 @@ namespace MimeKit {
 		}
 
 		#endregion
-		#endif
+#endif
 	}
 }

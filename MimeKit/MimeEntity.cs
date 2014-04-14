@@ -31,6 +31,10 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 using MimeKit.Utils;
 using MimeKit.IO;
 
@@ -676,6 +680,7 @@ namespace MimeKit {
 			return Load (ParserOptions.Default, stream, CancellationToken.None);
 		}
 
+#if !PORTABLE
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified file.
 		/// </summary>
@@ -825,6 +830,7 @@ namespace MimeKit {
 		{
 			return Load (ParserOptions.Default, fileName, CancellationToken.None);
 		}
+#endif // !PORTABLE
 
 		/// <summary>
 		/// Load a <see cref="MimeEntity"/> from the specified content stream.

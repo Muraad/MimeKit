@@ -51,6 +51,11 @@ namespace MimeKit.Cryptography {
 	/// </remarks>
 	public class DefaultSecureMimeContext : SecureMimeContext
 	{
+		const X509CertificateRecordFields CmsRecipientFields = X509CertificateRecordFields.Algorithms | X509CertificateRecordFields.Certificate;
+		const X509CertificateRecordFields CmsSignerFields = X509CertificateRecordFields.Certificate | X509CertificateRecordFields.PrivateKey;
+		const X509CertificateRecordFields AlgorithmFields = X509CertificateRecordFields.Id | X509CertificateRecordFields.Algorithms | X509CertificateRecordFields.AlgorithmsUpdated;
+		const X509CertificateRecordFields ImportPkcs12Fields = AlgorithmFields | X509CertificateRecordFields.Trusted | X509CertificateRecordFields.PrivateKey;
+
 		/// <summary>
 		/// The default database path for certificates, private keys and CRLs.
 		/// </summary>
@@ -84,8 +89,9 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Allows the program to specify its own location for the SQLite database. If the file does not exist,
-		/// it will be created and the necessary tables and indexes will be constructed.
+		/// <para>Allows the program to specify its own location for the SQLite database. If the file does not exist,
+		/// it will be created and the necessary tables and indexes will be constructed.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
 		/// <param name="fileName">The path to the SQLite database.</param>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
@@ -96,6 +102,9 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		/// <exception cref="System.ArgumentException">
 		/// The specified file path is empty.
+		/// </exception>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
 		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the specified file.
@@ -117,7 +126,10 @@ namespace MimeKit.Cryptography {
 			if (!string.IsNullOrEmpty (dir) && !Directory.Exists (dir))
 				Directory.CreateDirectory (dir);
 
-			dbase = new SqliteCertificateDatabase (fileName, password);
+			if (SqliteCertificateDatabase.IsAvailable)
+				dbase = new SqliteCertificateDatabase (fileName, password);
+			else
+				throw new NotImplementedException ("Mono.Data.Sqlite is not available.");
 
 			if (!exists) {
 				// TODO: initialize our dbase with some root CA certificates.
@@ -128,9 +140,13 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Allows the program to specify its own password for the default database.
+		/// <para>Allows the program to specify its own password for the default database.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
 		/// <param name="password">The password used for encrypting and decrypting the private keys.</param>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
+		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the database at the default location.
 		/// </exception>
@@ -145,8 +161,12 @@ namespace MimeKit.Cryptography {
 		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
 		/// </summary>
 		/// <remarks>
-		/// Not recommended for production use as the password to unlock the private keys is hard-coded.
+		/// <para>Not recommended for production use as the password to unlock the private keys is hard-coded.</para>
+		/// <para>Requires linking with Mono.Data.Sqlite.</para>
 		/// </remarks>
+		/// <exception cref="System.NotImplementedException">
+		/// Mono.Data.Sqlite is not available.
+		/// </exception>
 		/// <exception cref="System.UnauthorizedAccessException">
 		/// The user does not have access to read the database at the default location.
 		/// </exception>
@@ -155,6 +175,24 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		public DefaultSecureMimeContext () : this (DefaultDatabasePath, "no.secret")
 		{
+		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MimeKit.Cryptography.DefaultSecureMimeContext"/> class.
+		/// </summary>
+		/// <remarks>
+		/// This constructor is useful for supplying a custom <see cref="IX509CertificateDatabase"/>.
+		/// </remarks>
+		/// <param name="database">The certificate database.</param>
+		/// <exception cref="System.ArgumentNullException">
+		/// <paramref name="database"/> is <c>null</c>.
+		/// </exception>
+		public DefaultSecureMimeContext (IX509CertificateDatabase database)
+		{
+			if (database == null)
+				throw new ArgumentNullException ("database");
+
+			dbase = database;
 		}
 
 		#region implemented abstract members of SecureMimeContext
@@ -277,7 +315,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsRecipient GetCmsRecipient (MailboxAddress mailbox)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, X509CertificateRecordFields.CmsRecipient)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.Now, false, CmsRecipientFields)) {
 				if (record.KeyUsage != 0 && (record.KeyUsage & X509KeyUsageFlags.DataEncipherment) == 0)
 					continue;
 
@@ -318,7 +356,7 @@ namespace MimeKit.Cryptography {
 		/// </exception>
 		protected override CmsSigner GetCmsSigner (MailboxAddress mailbox, DigestAlgorithm digestAlgo)
 		{
-			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, X509CertificateRecordFields.CmsSigner)) {
+			foreach (var record in dbase.Find (mailbox, DateTime.Now, true, CmsSignerFields)) {
 				if (record.KeyUsage != X509KeyUsageFlags.None && (record.KeyUsage & X509KeyUsageFlags.DigitalSignature) == 0)
 					continue;
 
@@ -344,7 +382,7 @@ namespace MimeKit.Cryptography {
 		{
 			X509CertificateRecord record;
 
-			if ((record = dbase.Find (certificate, X509CertificateRecordFields.UpdateAlgorithms)) == null) {
+			if ((record = dbase.Find (certificate, AlgorithmFields)) == null) {
 				record = new X509CertificateRecord (certificate);
 				record.AlgorithmsUpdated = timestamp;
 				record.Algorithms = algorithms;
@@ -354,7 +392,7 @@ namespace MimeKit.Cryptography {
 				record.AlgorithmsUpdated = timestamp;
 				record.Algorithms = algorithms;
 
-				dbase.Update (record, X509CertificateRecordFields.UpdateAlgorithms);
+				dbase.Update (record, AlgorithmFields);
 			}
 		}
 
@@ -396,12 +434,13 @@ namespace MimeKit.Cryptography {
 			if (dbase.Find (crl, X509CrlRecordFields.Id) != null)
 				return;
 
+			const X509CrlRecordFields fields = ~X509CrlRecordFields.Crl;
 			var obsolete = new List<X509CrlRecord> ();
 			var delta = crl.IsDelta ();
 
 			// scan over our list of CRLs by the same issuer to check if this CRL obsoletes any
 			// older CRLs or if there are any newer CRLs that obsolete that obsolete this one.
-			foreach (var record in dbase.Find (crl.IssuerDN, X509CrlRecordFields.AllExeptCrl)) {
+			foreach (var record in dbase.Find (crl.IssuerDN, fields)) {
 				if (!record.IsDelta && record.ThisUpdate >= crl.ThisUpdate) {
 					// we have a complete CRL that obsoletes this CRL
 					return;
@@ -453,7 +492,7 @@ namespace MimeKit.Cryptography {
 					int startIndex = 0;
 
 					if (entry.Key.IsPrivate) {
-						if ((record = dbase.Find (chain[0].Certificate, X509CertificateRecordFields.ImportPkcs12)) == null) {
+						if ((record = dbase.Find (chain[0].Certificate, ImportPkcs12Fields)) == null) {
 							record = new X509CertificateRecord (chain[0].Certificate, entry.Key);
 							record.AlgorithmsUpdated = DateTime.Now;
 							record.Algorithms = enabledAlgorithms;
@@ -465,7 +504,7 @@ namespace MimeKit.Cryptography {
 							if (record.PrivateKey == null)
 								record.PrivateKey = entry.Key;
 							record.IsTrusted = true;
-							dbase.Update (record, X509CertificateRecordFields.ImportPkcs12);
+							dbase.Update (record, ImportPkcs12Fields);
 						}
 
 						startIndex = 1;

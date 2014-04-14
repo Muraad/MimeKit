@@ -28,6 +28,10 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
+#if PORTABLE
+using Encoding = Portable.Text.Encoding;
+#endif
+
 #if ENABLE_SNM
 using System.Net.Mail;
 #endif
@@ -180,7 +184,7 @@ namespace MimeKit {
 
 			if (!string.IsNullOrEmpty (Name)) {
 				var encoded = Rfc2047.EncodePhrase (options, Encoding, Name);
-				var str = Encoding.ASCII.GetString (encoded);
+				var str = Encoding.ASCII.GetString (encoded, 0, encoded.Length);
 
 				if (lineLength + str.Length > options.MaxLineLength) {
 					if (str.Length > options.MaxLineLength) {
@@ -515,7 +519,7 @@ namespace MimeKit {
 			return TryParse (ParserOptions.Default, text, out mailbox);
 		}
 
-		#if ENABLE_SNM
+#if ENABLE_SNM
 		/// <summary>
 		/// Explicit cast to convert a <see cref="MailboxAddress"/> to a
 		/// <see cref="System.Net.Mail.MailAddress"/>.
@@ -545,6 +549,6 @@ namespace MimeKit {
 		{
 			return address != null ? new MailboxAddress (address.DisplayName, address.Address) : null;
 		}
-		#endif
+#endif
 	}
 }
