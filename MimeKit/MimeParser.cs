@@ -810,8 +810,23 @@ namespace MimeKit {
 
 			do {
 				if (ReadAhead (inbuf, Math.Max (ReadAheadSize, left), 0) <= left) {
-					// failed to find the end of the headers; EOF reached
-					state = MimeParserState.Error;
+					// EOF reached before we reached the end of the headers...
+					if (left == 0 && !midline && headers.Count > 0) {
+						// the last header we encountered has been parsed cleanly, so try to
+						// fail gracefully by pretending we found the end of the headers...
+						//
+						// For more details, see https://github.com/jstedfast/MimeKit/pull/51
+						state = MimeParserState.Content;
+					} else {
+						// the last header we encountered was truncated - probably best
+						// to error out in this case
+						if (left > 0)
+							AppendRawHeaderData (inputIndex, left);
+
+						state = MimeParserState.Error;
+					}
+
+					ParseAndAppendHeader ();
 					inputIndex = inputEnd;
 					return;
 				}
@@ -1428,7 +1443,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeEntity ParseEntity (CancellationToken cancellationToken)
+		public MimeEntity ParseEntity (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
 
@@ -1437,24 +1452,6 @@ namespace MimeKit {
 					return ParseEntity (inbuf);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Parses an entity from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses an entity from the stream.
-		/// </remarks>
-		/// <returns>The parsed entity.</returns>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the entity.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public MimeEntity ParseEntity ()
-		{
-			return ParseEntity (CancellationToken.None);
 		}
 
 		unsafe MimeMessage ParseMessage (byte* inbuf)
@@ -1539,7 +1536,7 @@ namespace MimeKit {
 		/// <exception cref="System.IO.IOException">
 		/// An I/O error occurred.
 		/// </exception>
-		public MimeMessage ParseMessage (CancellationToken cancellationToken)
+		public MimeMessage ParseMessage (CancellationToken cancellationToken = default (CancellationToken))
 		{
 			token = cancellationToken;
 
@@ -1548,24 +1545,6 @@ namespace MimeKit {
 					return ParseMessage (inbuf);
 				}
 			}
-		}
-
-		/// <summary>
-		/// Parses a message from the stream.
-		/// </summary>
-		/// <remarks>
-		/// Parses a message from the stream.
-		/// </remarks>
-		/// <returns>The parsed message.</returns>
-		/// <exception cref="System.FormatException">
-		/// There was an error parsing the message.
-		/// </exception>
-		/// <exception cref="System.IO.IOException">
-		/// An I/O error occurred.
-		/// </exception>
-		public MimeMessage ParseMessage ()
-		{
-			return ParseMessage (CancellationToken.None);
 		}
 
 		#region IEnumerable implementation

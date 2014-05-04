@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="MimeKit" Version="0.32.0.0">
+    <Assembly Name="MimeKit" Version="0.33.0.0">
       <Attributes>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyCompany("Xamarin Inc.")</AttributeName>
@@ -15,10 +15,10 @@
           <AttributeName>System.Reflection.AssemblyDescription("A complete MIME library with support for S/MIME, PGP and Unix mbox spools.")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyFileVersion("0.32.0.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyFileVersion("0.33.0.0")</AttributeName>
         </Attribute>
         <Attribute>
-          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.32.0")</AttributeName>
+          <AttributeName>System.Reflection.AssemblyInformationalVersion("0.33.0")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyProduct("MimeKit")</AttributeName>
@@ -28,6 +28,9 @@
         </Attribute>
         <Attribute>
           <AttributeName>System.Reflection.AssemblyTrademark("Xamarin Inc.")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Runtime.CompilerServices.InternalsVisibleTo("UnitTests")</AttributeName>
         </Attribute>
         <Attribute>
           <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
@@ -103,6 +106,7 @@
       <Type Name="IX509CertificateDatabase" Kind="Interface" />
       <Type Name="MultipartEncrypted" Kind="Class" />
       <Type Name="MultipartSigned" Kind="Class" />
+      <Type Name="NpgsqlCertificateDatabase" Kind="Class" />
       <Type Name="OpenPgpContext" Kind="Class" />
       <Type Name="OpenPgpDigitalCertificate" Kind="Class" />
       <Type Name="OpenPgpDigitalSignature" Kind="Class" />
@@ -114,6 +118,7 @@
       <Type Name="SecureMimeDigitalCertificate" Kind="Class" />
       <Type Name="SecureMimeDigitalSignature" Kind="Class" />
       <Type Name="SecureMimeType" Kind="Enumeration" />
+      <Type Name="SqlCertificateDatabase" Kind="Class" />
       <Type Name="SqliteCertificateDatabase" Kind="Class" />
       <Type Name="SubjectIdentifierType" Kind="Enumeration" />
       <Type Name="TemporarySecureMimeContext" Kind="Class" />
@@ -162,6 +167,10 @@
       <Type Name="PassThroughFilter" Kind="Class" />
       <Type Name="TrailingWhitespaceFilter" Kind="Class" />
       <Type Name="Unix2DosFilter" Kind="Class" />
+    </Namespace>
+    <Namespace Name="MimeKit.Tnef">
+      <Type Name="TnefException" Kind="Class" />
+      <Type Name="TnefPart" Kind="Class" />
     </Namespace>
     <Namespace Name="MimeKit.Utils">
       <Type Name="DateUtils" Kind="Class" />

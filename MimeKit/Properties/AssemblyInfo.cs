@@ -47,6 +47,7 @@ using System.Runtime.InteropServices;
 #if !PORTABLE
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid ("2fe79b66-d107-45da-9493-175f59c4a53c")]
+[assembly: InternalsVisibleTo ("UnitTests")]
 #endif
 
 // Version information for an assembly consists of the following four values:
@@ -75,6 +76,6 @@ using System.Runtime.InteropServices;
 //
 // If there have only been bug fixes, bump the Micro Version and/or the Build Number
 //    in the AssemblyFileVersion attribute.
-[assembly: AssemblyInformationalVersion ("0.32.0")]
-[assembly: AssemblyFileVersion ("0.32.0.0")]
-[assembly: AssemblyVersion ("0.32.0.0")]
+[assembly: AssemblyInformationalVersion ("0.33.0")]
+[assembly: AssemblyFileVersion ("0.33.0.0")]
+[assembly: AssemblyVersion ("0.33.0.0")]

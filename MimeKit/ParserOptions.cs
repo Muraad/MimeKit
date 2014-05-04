@@ -37,13 +37,15 @@ using Encoding = Portable.Text.Encoding;
 using MimeKit.Cryptography;
 #endif
 
+using MimeKit.Tnef;
+
 namespace MimeKit {
 	/// <summary>
 	/// Parser options as used by <see cref="MimeParser"/> as well as various Parse and TryParse methods in MimeKit.
 	/// </summary>
 	/// <remarks>
-	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options
-	/// used by methods such as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream)"/> and others.
+	/// <see cref="ParserOptions"/> allows you to change and/or override default parsing options used by methods such
+	/// as <see cref="MimeMessage.Load(ParserOptions,System.IO.Stream,System.Threading.CancellationToken)"/> and others.
 	/// </remarks>
 	public class ParserOptions
 	{
@@ -256,6 +258,9 @@ namespace MimeKit {
 				case "x-pkcs7-mime":
 				case "pkcs7-mime":
 					return new ApplicationPkcs7Mime (entity);
+				case "vnd.ms-tnef":
+				case "ms-tnef":
+					return new TnefPart (entity);
 				}
 			}
 #endif
